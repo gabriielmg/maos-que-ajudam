@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { fetchSheetData } from "@/lib/sheets-server";
 import { processRows, TOTAL_GOAL } from "@/lib/sheets";
 
-export const revalidate = 15;
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {

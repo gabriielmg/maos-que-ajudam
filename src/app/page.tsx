@@ -166,7 +166,7 @@ export default function HomePage() {
 
   useEffect(() => {
     fetchData();
-    const t = setInterval(() => fetchData(), 15_000);
+    const t = setInterval(() => fetchData(), 10_000);
     return () => clearInterval(t);
   }, [fetchData]);
 
@@ -587,7 +587,7 @@ export default function HomePage() {
           {data?.lastUpdated
             ? `Atualizado: ${new Date(data.lastUpdated).toLocaleTimeString("pt-BR")} · `
             : ""}
-          Dados atualizados a cada 15s
+          Dados atualizados a cada 10s
         </p>
       </footer>
     </div>
