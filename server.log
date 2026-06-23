@@ -1,0 +1,58 @@
+
+> maos-que-ajudam@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.18:3000
+- Environments: .env.local
+✓ Ready in 650ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of c:\Users\Gabriel e Lucas\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * c:\Users\Gabriel e Lucas\Documents\maos-que-ajudam\package-lock.json
+
+
+○ Compiling /api/sheets ...
+[Sheets] Buscando: 1tHzbp12fm0cgG350THvFNFPBWGyYHOhf2lDtrZH1X-s Lancamentos!A2:C
+[Sheets] Erro: The caller does not have permission
+ GET /api/sheets 500 in 6.1s (next.js: 5.1s, application-code: 999ms)
+[Sheets] Buscando: 1tHzbp12fm0cgG350THvFNFPBWGyYHOhf2lDtrZH1X-s Lancamentos!A2:C
+[Sheets] Linhas recebidas: 1
+ GET /api/sheets 200 in 1032ms (next.js: 5ms, application-code: 1027ms)
+○ Compiling / ...
+✓ Finished writing to filesystem cache in 24.5s
+Compaction failed: Failed to compact database
+
+Caused by:
+    0: Failed to merge database files for family 2
+    1: Unable to open static sorted file 00001336.sst
+    2: Failed to mmap SST file c:\Users\Gabriel e Lucas\Documents\maos-que-ajudam\.next\dev\cache/turbopack\f37fad94\00001336.sst (109221389 bytes)
+    3: O arquivo de paginação é muito pequeno para que esta operação seja concluída. (os error 1455)
+
+
+#
+# Fatal process out of memory: Zone
+#
+----- Native stack trace -----
+
+ 1: 00007FF73ECC1427 node::SetCppgcReference+16599
+ 2: 00007FF73EB95D3F node::TriggerNodeReport+74095
+ 3: 00007FF73FDFBC16 v8::base::FatalOOM+54
+ 4: 00007FF73F782D41 v8::Function::Experimental_IsNopFunction+2801
+ 5: 00007FF73F265A4B v8::SnapshotCreator::GetIsolate+50059
+ 6: 00007FF740041649 v8::internal::compiler::CompilationDependencies::TransitionDependencyOffTheRecord+1083785
+ 7: 00007FF7400417DF v8::internal::compiler::CompilationDependencies::TransitionDependencyOffTheRecord+1084191
+ 8: 00007FF73FF0EF94 v8::internal::compiler::CompilationDependencies::~CompilationDependencies+745732
+ 9: 00007FF73FF1B24F v8::internal::compiler::CompilationDependencies::~CompilationDependencies+795583
+10: 00007FF73FF1606A v8::internal::compiler::CompilationDependencies::~CompilationDependencies+774618
+11: 00007FF73F700074 v8::SharedValueConveyor::SharedValueConveyor+30324
+12: 00007FF73F6C6C52 v8::Private::Name+42834
+13: 00007FF73F987B96 v8::PropertyDescriptor::writable+1996774
+14: 00007FF73EB98AC0 DH_get0_priv_key+784
+15: 00007FF73ED22263 uv_poll_stop+371
+16: 00007FF740510BCB inflateValidate+172219
+17: 00007FFB3BD9E957 BaseThreadInitThunk+23
+18: 00007FFB3CB07C1C RtlUserThreadStart+44
