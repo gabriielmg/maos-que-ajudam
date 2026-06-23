@@ -3,17 +3,22 @@ import type { SheetRow } from "@/types";
 import { getMockData } from "./sheets";
 
 function normalizeKey(raw: string): string {
-  // Remove surrounding quotes if any
-  let key = raw.replace(/^["']|["']$/g, "");
-  // Convert all variants of \n to real newlines
-  key = key.replace(/\\n/g, "\n").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  // If the entire key is still a single line, reformat the PEM blocks
-  if (!key.includes("\n")) {
-    key = key
-      .replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
-      .replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----");
-  }
-  return key.trim();
+  // Strip surrounding quotes and convert literal \n sequences to real newlines
+  const unwrapped = raw
+    .replace(/^["']|["']$/g, "")
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n");
+
+  // Extract PEM type + base64 content (works regardless of line-break format)
+  const match = unwrapped.match(/-----BEGIN ([^-]+)-----\s*([\s\S]*?)\s*-----END ([^-]+)-----/);
+  if (!match) return unwrapped;
+
+  const type = match[1].trim();
+  // Remove ALL whitespace from base64 body and re-wrap at 64 chars (PEM standard)
+  const b64 = match[2].replace(/\s+/g, "");
+  const lines = b64.match(/.{1,64}/g) ?? [];
+  return `-----BEGIN ${type}-----\n${lines.join("\n")}\n-----END ${type}-----\n`;
 }
 
 export async function fetchSheetData(): Promise<SheetRow[]> {
