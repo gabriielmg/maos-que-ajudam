@@ -2,36 +2,43 @@ import { google } from "googleapis";
 import type { SheetRow } from "@/types";
 import { getMockData } from "./sheets";
 
-function normalizeKey(raw: string): string {
-  // Strip surrounding quotes and convert literal \n sequences to real newlines
-  const unwrapped = raw
-    .replace(/^["']|["']$/g, "")
-    .replace(/\\n/g, "\n")
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n");
+function getCredentials(): { email: string; key: string } | null {
+  // Primary: single base64-encoded JSON (avoids all newline/encoding issues on Vercel)
+  const b64 = process.env.GOOGLE_CREDENTIALS_B64;
+  if (b64) {
+    try {
+      const json = JSON.parse(Buffer.from(b64, "base64").toString("utf8"));
+      if (json.client_email && json.private_key) {
+        return { email: json.client_email, key: json.private_key };
+      }
+    } catch {
+      console.error("[Sheets] Erro ao decodificar GOOGLE_CREDENTIALS_B64");
+    }
+  }
 
-  // Extract PEM type + base64 content (works regardless of line-break format)
-  const match = unwrapped.match(/-----BEGIN ([^-]+)-----\s*([\s\S]*?)\s*-----END ([^-]+)-----/);
-  if (!match) return unwrapped;
+  // Fallback: individual env vars
+  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const rawKey = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (email && rawKey) {
+    const key = rawKey.replace(/\\n/g, "\n");
+    return { email, key };
+  }
 
-  const type = match[1].trim();
-  // Remove ALL whitespace from base64 body and re-wrap at 64 chars (PEM standard)
-  const b64 = match[2].replace(/\s+/g, "");
-  const lines = b64.match(/.{1,64}/g) ?? [];
-  return `-----BEGIN ${type}-----\n${lines.join("\n")}\n-----END ${type}-----\n`;
+  return null;
 }
 
 export async function fetchSheetData(): Promise<SheetRow[]> {
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-  const range = process.env.GOOGLE_SHEET_RANGE ?? "Planilha1!A2:C";
+  const range = process.env.GOOGLE_SHEET_RANGE ?? "Lancamentos!A2:C";
+  const creds = getCredentials();
 
-  if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+  if (!spreadsheetId || !creds) {
     return getMockData();
   }
 
   const auth = new google.auth.JWT({
-    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    key: normalizeKey(process.env.GOOGLE_SERVICE_ACCOUNT_KEY ?? ""),
+    email: creds.email,
+    key: creds.key,
     scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
   });
 
@@ -43,7 +50,7 @@ export async function fetchSheetData(): Promise<SheetRow[]> {
   const values = response.data.values ?? [];
   console.log("[Sheets] Linhas recebidas:", values.length);
 
-  // Planilha: col A = doador, col B = "Ala - Item", col C = quantidade
+  // col A = doador, col B = "Ala - Item", col C = quantidade
   return values
     .map((row) => {
       const alaItem = String(row[1] ?? "").trim();
