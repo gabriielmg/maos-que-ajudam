@@ -62,5 +62,6 @@ export async function fetchSheetData(): Promise<SheetRow[]> {
       return { ala, item, quantidade };
     })
     .filter((row) => row.ala && row.item && row.quantidade > 0);
+  console.log("[Sheets] Linhas válidas:", parsed.length, parsed.map((r) => `${r.ala}=${r.quantidade}`).join(", "));
   return parsed;
 }

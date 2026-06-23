@@ -12,8 +12,13 @@ function stripAccents(s: string): string {
     .replace(/[ç]/g, "c");
 }
 
+const ALA_ALIASES: Record<string, string> = {
+  "conde": "Ramo Conde",
+};
+
 export function findCanonicalAla(rawAla: string): string | null {
   const normalized = stripAccents(rawAla);
+  if (normalized in ALA_ALIASES) return ALA_ALIASES[normalized];
   const match = ALA_ASSIGNMENTS.find((a) => stripAccents(a.ala) === normalized);
   return match?.ala ?? null;
 }
