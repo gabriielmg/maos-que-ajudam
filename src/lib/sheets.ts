@@ -1,5 +1,23 @@
 import type { SheetRow } from "@/types";
 
+function stripAccents(s: string): string {
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/[áàãâä]/g, "a")
+    .replace(/[éèêë]/g, "e")
+    .replace(/[íìîï]/g, "i")
+    .replace(/[óòõôö]/g, "o")
+    .replace(/[úùûü]/g, "u")
+    .replace(/[ç]/g, "c");
+}
+
+export function findCanonicalAla(rawAla: string): string | null {
+  const normalized = stripAccents(rawAla);
+  const match = ALA_ASSIGNMENTS.find((a) => stripAccents(a.ala) === normalized);
+  return match?.ala ?? null;
+}
+
 export const ITEMS_META = [
   { id: "fralda-geriatrica-xxg",    name: "Fralda Geriátrica XXG",       category: "fralda"    },
   { id: "fralda-geriatrica-xg",     name: "Fralda Geriátrica XG",        category: "fralda"    },

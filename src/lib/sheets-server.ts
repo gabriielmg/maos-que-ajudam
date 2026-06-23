@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 import type { SheetRow } from "@/types";
-import { getMockData } from "./sheets";
+import { getMockData, findCanonicalAla } from "./sheets";
 
 function getCredentials(): { email: string; key: string } | null {
   // Primary: single base64-encoded JSON (avoids all newline/encoding issues on Vercel)
@@ -51,14 +51,16 @@ export async function fetchSheetData(): Promise<SheetRow[]> {
   console.log("[Sheets] Linhas recebidas:", values.length);
 
   // col A = doador, col B = "Ala - Item", col C = quantidade
-  return values
+  const parsed = values
     .map((row) => {
       const alaItem = String(row[1] ?? "").trim();
       const dashIdx = alaItem.indexOf(" - ");
-      const ala = dashIdx >= 0 ? alaItem.substring(0, dashIdx).trim() : alaItem;
+      const rawAla = dashIdx >= 0 ? alaItem.substring(0, dashIdx).trim() : alaItem;
+      const ala = findCanonicalAla(rawAla) ?? rawAla;
       const item = dashIdx >= 0 ? alaItem.substring(dashIdx + 3).trim() : "";
       const quantidade = parseInt(String(row[2] ?? "0").replace(/\./g, "").replace(",", ""), 10) || 0;
       return { ala, item, quantidade };
     })
     .filter((row) => row.ala && row.item && row.quantidade > 0);
+  return parsed;
 }
